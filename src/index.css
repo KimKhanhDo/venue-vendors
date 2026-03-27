@@ -1,0 +1,275 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@import '@fontsource-variable/geist';
+@plugin 'tailwindcss-animate';
+
+@custom-variant dark (&:is(.dark *));
+
+/* ── Project design tokens ───────────────────────────────────────────────── */
+@theme {
+  /* Breakpoints */
+  --breakpoint-sm: 30rem; /* 480px  */
+  --breakpoint-md: 48rem; /* 768px  */
+  --breakpoint-lg: 80rem; /* 1280px */
+  --breakpoint-xl: 87.5rem; /* 1400px */
+  --breakpoint-2xl: 96rem; /* 1536px */
+
+  /* Colors */
+  --color-background: hsl(270 30% 98%);
+  --color-foreground: hsl(270 35% 12%);
+  --color-primary: #491f7a;
+  --color-secondary: #894eef;
+  --color-dashboard: #f3f0fa;
+  --color-muted-foreground: hsl(240 15% 50%);
+  --color-footer: hsl(270 25% 93%);
+  --color-border: hsl(282 16% 87%);
+  --color-input: hsl(260 30% 92%);
+  --color-ring: hsl(271 79% 47%);
+  --color-dark-100: #503d66;
+  --color-dark-200: #c3bac8;
+
+  /* Layout */
+  --header-height: 82px;
+}
+
+/* ── Base layer ──────────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    /* Gradients */
+    --gradient-primary:
+      linear-gradient(to right, hsl(270 25% 88% / 0.55) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(270 25% 88% / 0.55) 1px, transparent 1px),
+      radial-gradient(ellipse 700px 500px at 5% 0%, hsl(262 83% 62% / 0.12), transparent),
+      radial-gradient(ellipse 600px 400px at 95% 5%, hsl(268 60% 40% / 0.1), transparent),
+      var(--color-background);
+
+    --gradient-pastel:
+      radial-gradient(ellipse 120% 40% at 50% 0%, hsl(270 40% 98%), transparent),
+      radial-gradient(ellipse 70% 60% at 0% 30%, hsl(280 60% 94% / 0.8), transparent),
+      radial-gradient(ellipse 60% 50% at 100% 25%, hsl(220 55% 95% / 0.7), transparent),
+      radial-gradient(ellipse 80% 55% at 20% 70%, hsl(300 40% 95% / 0.6), transparent),
+      radial-gradient(ellipse 70% 50% at 80% 75%, hsl(240 50% 95% / 0.65), transparent),
+      radial-gradient(ellipse 100% 35% at 50% 100%, hsl(270 30% 98%), transparent), hsl(270 25% 96%);
+
+    --gradient-purple: radial-gradient(
+      125% 125% at 50% 10%,
+      hsla(0, 0%, 100%, 1) 40%,
+      hsla(262, 83%, 58%, 0.5) 100%
+    );
+
+    /* Shadows */
+    --shadow-soft: 0 8px 40px -8px color-mix(in srgb, var(--color-primary) 15%, transparent);
+    --shadow-card: 0 2px 16px -4px color-mix(in srgb, var(--color-primary) 10%, transparent);
+
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: 'Poppins', sans-serif;
+    cursor: default;
+    user-select: none;
+    scrollbar-gutter: stable;
+  }
+
+  body[data-scroll-locked] {
+    overflow: visible !important;
+    margin-right: 0 !important;
+  }
+
+  img {
+    display: block;
+    border: none;
+    outline: none;
+  }
+
+  a img {
+    border: none;
+    outline: none;
+  }
+
+  *:focus,
+  *:focus-visible {
+    outline: none;
+  }
+
+  * {
+    @apply border-border;
+  }
+}
+
+/* ── Components ──────────────────────────────────────────────────────────── */
+@layer components {
+  .bg-gradient-primary {
+    background: var(--gradient-primary);
+    background-size:
+      48px 48px,
+      48px 48px,
+      auto,
+      auto,
+      auto;
+  }
+
+  .bg-gradient-pastel {
+    background: var(--gradient-pastel);
+  }
+
+  .bg-gradient-purple {
+    background: var(--gradient-purple);
+  }
+
+  .background-glass {
+    background: color-mix(in srgb, var(--color-background) 85%, transparent);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-primary) 15%, transparent);
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .nav-link {
+    color: var(--color-primary);
+    position: relative;
+    padding-bottom: 2px;
+    cursor: pointer;
+    transition: color 0.25s ease;
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 0;
+    height: 1.5px;
+    background: var(--color-secondary);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .nav-link:hover {
+    color: var(--color-secondary);
+  }
+
+  .nav-link:hover::after {
+    width: 100%;
+  }
+}
+
+/* ── Container ───────────────────────────────────────────────────────────── */
+@utility container {
+  width: 1280px;
+  max-width: calc(100% - 80px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ── Shadcn variables (generated) ────────────────────────────────────────── */
+:root {
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --muted: oklch(0.97 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --chart-1: oklch(0.809 0.105 251.813);
+  --chart-2: oklch(0.623 0.214 259.815);
+  --chart-3: oklch(0.546 0.245 262.881);
+  --chart-4: oklch(0.488 0.243 264.376);
+  --chart-5: oklch(0.424 0.199 265.638);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --chart-1: oklch(0.809 0.105 251.813);
+  --chart-2: oklch(0.623 0.214 259.815);
+  --chart-3: oklch(0.546 0.245 262.881);
+  --chart-4: oklch(0.488 0.243 264.376);
+  --chart-5: oklch(0.424 0.199 265.638);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* ── Override shadcn → restore project theme (must be LAST) ─────────────── */
+@theme inline {
+  /* Sidebar — keep shadcn's */
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+
+  /* Charts — keep shadcn's */
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+
+  /* Shadcn tokens — keep */
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted: var(--muted);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* Radius */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* ✅ Project colors — override shadcn's primary/secondary/etc */
+  --color-background: hsl(270 30% 98%);
+  --color-foreground: hsl(270 35% 12%);
+  --color-primary: #491f7a;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #894eef;
+  --color-secondary-foreground: #ffffff;
+  --color-muted-foreground: hsl(240 15% 50%);
+  --color-border: hsl(282 16% 87%);
+  --color-input: hsl(260 30% 92%);
+  --color-ring: hsl(271 79% 47%);
+}
