@@ -1,7 +1,6 @@
 import { Link } from 'react-router';
 import type { ReactNode } from 'react';
-
-import type { IStep } from '@/constants';
+import type { IStep } from '@/types';
 
 type RoleCardProps = {
   icon: ReactNode;
@@ -21,7 +20,9 @@ const RoleCard = ({ icon, title, subtitle, steps, ctaText, ctaLink }: RoleCardPr
       <div className="flex flex-1 flex-col px-6 py-8 md:px-12 md:py-10">
         {/* Card head */}
         <div className="mb-8 flex items-center gap-4">
-          <div className="bg-secondary/10 flex h-12 w-12 items-center justify-center rounded-xl">{icon}</div>
+          <div className="bg-secondary/10 flex h-12 w-12 items-center justify-center rounded-xl">
+            {icon}
+          </div>
           <div>
             <h3 className="text-primary text-xl font-semibold">{title}</h3>
             <p className="text-dark-100 text-sm">{subtitle}</p>

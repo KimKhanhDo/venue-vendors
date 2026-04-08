@@ -1,13 +1,16 @@
 import { useRef } from 'react';
 import { toast } from 'sonner';
 
+import type { StoredFile } from '@/types';
+import { downloadFile } from '@/utils';
+
 interface UploadRowProps {
   label: string;
   hint: string;
   accept: string;
   maxMB?: number;
-  stored?: { fileName: string; base64: string };
-  onUpload: (file: { fileName: string; base64: string }) => void;
+  stored?: StoredFile;
+  onUpload: (file: StoredFile) => void;
   onRemove: () => void;
 }
 
@@ -23,27 +26,43 @@ const UploadRow = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // files[0] — single-file input, so only the first file matters
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // validate file type
+    // accept prop is a comma-separated string e.g. '.jpg,.jpeg' or '.pdf'
+    const allowedTypes = accept.split(',').map((t) => t.trim().toLowerCase());
+    const fileExt = `.${file.name.split('.').pop()?.toLowerCase()}`;
+
+    if (!allowedTypes.includes(fileExt)) {
+      toast.error(`Invalid file type. Allowed: ${accept}`);
+      e.target.value = ''; // reset input so the same file can be re-selected after correction
+      return;
+    }
+
+    // reject files exceeding size limit; reset input so re-selecting same file still triggers onChange
     if (file.size > maxMB * 1024 * 1024) {
       toast.error(`File too large. Maximum size is ${maxMB} MB.`);
       e.target.value = '';
       return;
     }
+
     const reader = new FileReader();
+
+    // onload fires after reading completes — reader.result holds the data URL at this point
     reader.onload = () => {
       onUpload({ fileName: file.name, base64: reader.result as string });
       toast.success(`${label} uploaded successfully.`);
     };
+
+    // start reading, always assign onload before calling this
     reader.readAsDataURL(file);
   };
 
   const handleDownload = () => {
     if (!stored) return;
-    const a = document.createElement('a');
-    a.href = stored.base64;
-    a.download = stored.fileName;
-    a.click();
+    downloadFile(stored.fileName, stored.base64);
   };
 
   return (
@@ -79,7 +98,7 @@ const UploadRow = ({
             type="button"
             onClick={() => {
               onRemove();
-              if (inputRef.current) inputRef.current.value = '';
+              if (inputRef.current) inputRef.current.value = ''; // reset so same file can be re-uploaded
             }}
             className="shrink-0 rounded-lg border border-rose-200 bg-white px-3 py-1 text-xs font-medium text-rose-500 transition-all hover:shadow-sm"
           >

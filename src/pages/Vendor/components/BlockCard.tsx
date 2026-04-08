@@ -1,4 +1,5 @@
 import type { BlockedPeriod } from '@/types';
+import { format } from 'date-fns';
 
 interface BlockCardProps {
   block: BlockedPeriod;
@@ -10,7 +11,7 @@ const BlockCard = ({ block, onRemove }: BlockCardProps) => (
     <div className="space-y-1">
       <p className="text-sm font-semibold text-rose-800">{block.venueName}</p>
       <p className="text-xs text-rose-700">
-        {block.from} → {block.to}
+        {format(new Date(block.from), 'dd-MM-yyyy')} → {format(new Date(block.to), 'dd-MM-yyyy')}
       </p>
       <p className="text-xs text-rose-500">{block.reason}</p>
     </div>

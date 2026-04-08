@@ -1,4 +1,4 @@
-import { Ban, Check, Plus } from 'lucide-react';
+import { CalendarOff, Check, Plus } from 'lucide-react';
 import { MdOutlineHome } from 'react-icons/md';
 
 import { Badge } from '@/components/ui/badge';
@@ -15,49 +15,35 @@ interface VenueCardProps {
 
 const VenueCard = ({ venue, added, blocked, blockedInfo, onAdd }: VenueCardProps) => {
   return (
-    <div
-      className={cn(
-        'group flex cursor-pointer flex-col overflow-hidden rounded-xl transition-all',
-        blocked
-          ? 'bg-rose-50/50 opacity-60 ring-1 ring-rose-200'
-          : 'bg-purple-50/80 ring-1 ring-gray-200',
-      )}
-    >
+    <div className="group flex cursor-pointer flex-col overflow-hidden rounded-xl bg-purple-50/80 ring-1 ring-gray-200 transition-all">
       {/* Thumbnail */}
       {venue.photo ? (
-        <img
-          src={venue.photo}
-          alt={venue.name}
-          className={cn('h-60 w-full object-cover', blocked && 'grayscale')}
-        />
+        <img src={venue.photo} alt={venue.name} className="h-60 w-full object-cover" />
       ) : (
-        <div
-          className={cn(
-            'flex h-60 items-center justify-center',
-            blocked ? 'bg-rose-100' : 'bg-linear-to-br from-purple-200 to-violet-100',
-          )}
-        >
-          <MdOutlineHome className={cn('h-7 w-7', blocked ? 'text-rose-300' : 'text-purple-300')} />
+        <div className="flex h-60 items-center justify-center bg-linear-to-br from-purple-200 to-violet-100">
+          <MdOutlineHome className="h-7 w-7 text-purple-300" />
         </div>
       )}
 
       {/* Card body */}
       <div className="flex flex-1 flex-col justify-between gap-1 p-4">
-        {/* Blocked reason */}
+        {/* Blocked period info — shown as a warning, not a hard block */}
         {blocked && blockedInfo && (
-          <p className="mb-3 text-xs text-rose-500">
-            {blockedInfo.reason} · {blockedInfo.from} → {blockedInfo.to}
-          </p>
+          <div className="mb-2 flex items-center justify-between">
+            <p className="flex items-center gap-1 text-xs text-rose-500">
+              <CalendarOff size={12} className="shrink-0" />
+              {blockedInfo.reason} · {blockedInfo.from} → {blockedInfo.to}
+            </p>
+
+            <span className="shrink-0 rounded-full bg-rose-100 px-2 py-0.5 text-xs font-medium text-rose-600">
+              Unavailable period
+            </span>
+          </div>
         )}
 
         {/* Name + unavailable badge */}
         <div className="flex items-center justify-between gap-2">
           <p className="text-sm font-semibold text-gray-900">{venue.name}</p>
-          {blocked && (
-            <span className="shrink-0 rounded-full bg-rose-100 px-2 py-0.5 text-xs font-medium text-rose-600">
-              Unavailable
-            </span>
-          )}
         </div>
 
         {/* Location + capacity */}
@@ -86,24 +72,18 @@ const VenueCard = ({ venue, added, blocked, blockedInfo, onAdd }: VenueCardProps
           ))}
         </div>
 
-        {/* Add button */}
+        {/* Add button — only disabled when already added, not when blocked */}
         <button
           onClick={() => onAdd(venue)}
-          disabled={added || blocked}
+          disabled={added}
           className={cn(
             'mt-2.5 flex h-7 w-full items-center justify-center gap-1.5 rounded-lg border text-xs transition-all',
-            blocked
-              ? 'cursor-not-allowed border-rose-200 bg-rose-50 text-rose-400'
-              : added
-                ? 'cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400'
-                : 'cursor-pointer border-purple-200 bg-white! text-purple-700 group-hover:border-purple-400 group-hover:shadow-md',
+            added
+              ? 'cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400'
+              : 'group-hover:border-secondary cursor-pointer border-purple-200 bg-white! text-purple-700 group-hover:shadow-md',
           )}
         >
-          {blocked ? (
-            <>
-              <Ban size={12} /> Unavailable
-            </>
-          ) : added ? (
+          {added ? (
             <>
               <Check size={12} /> Added
             </>

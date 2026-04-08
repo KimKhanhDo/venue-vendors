@@ -68,9 +68,14 @@ const Sidebar = ({ user, onLogOut }: ISidebarProps) => {
               {user?.username?.charAt(0).toUpperCase()}
             </span>
           </div>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold">{user.username}</p>
-            <p className="truncate text-xs text-gray-400">{user.email}</p>
+          <div className="flex min-w-0 flex-col gap-1">
+            <p className="truncate text-sm font-semibold">
+              {user.firstName} {user.lastName}
+            </p>
+            <div className="flex flex-col gap-1">
+              <p className="truncate text-xs text-gray-400">{user.email}</p>
+              <p className="truncate text-xs text-gray-400">{user.phone}</p>
+            </div>
           </div>
         </div>
 

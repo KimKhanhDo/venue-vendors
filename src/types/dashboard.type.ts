@@ -12,30 +12,7 @@ export interface User {
   credibilityScore?: number; // 0-5, auto-calculated from compliance docs
 }
 
-// ─── Compliance Documents ─────────────────────────────────────────────────────
-
-export interface ComplianceDocuments {
-  hirerId: string;
-  // Driver's license — stored as base64 jpg in localStorage
-  driverLicense?: {
-    fileName: string;
-    base64: string; // data:image/jpeg;base64,...
-  };
-  // Public liability insurance — stored as base64 pdf in localStorage
-  liabilityInsurance?: {
-    fileName: string;
-    base64: string; // data:application/pdf;base64,...
-  };
-  // Business details — only present when isBusiness = true
-  isBusiness: boolean;
-  abnNumber?: string;
-  businessCert?: {
-    fileName: string;
-    base64: string; // data:application/pdf;base64,...
-  };
-}
-
-// ─── Hirer ────────────────────────────────────────────────────────────────────
+// ─── Venue ────────────────────────────────────────────────────────────────────
 
 export interface Venue {
   id: string;
@@ -49,75 +26,79 @@ export interface Venue {
   pricePerHour: number;
 }
 
-export interface Application {
+// ─── Candidate ────────────────────────────────────────────────────────────────
+// Venue hirer is considering — used only for Browse + Rank sections
+// localStorage key: 'candidates'
+
+export interface Candidate {
   id: string;
-  hirerId: string;
+  hirerId: string; // email
   venueId: string;
   venueName: string;
   location: string;
   capacity: number;
   rank: number;
-  // Filled in ApplySection
-  eventName?: string;
-  guestCount?: number;
-  date?: string;
-  time?: string;
-  duration?: number;
-  status: 'pending' | 'approved' | 'rejected';
-  comment?: string;
 }
 
-export interface HireHistory {
+// ─── Application ──────────────────────────────────────────────────────────────
+// Official form submission — hirer submits, vendor reviews and acts on
+// localStorage key: 'applications'
+
+export interface Application {
   id: string;
-  hirerId: string;
-  venueName: string;
-  location: string;
-  eventName: string;
-  dateOfHire: string;
-  rating: number;
-}
-
-// ─── Vendor ───────────────────────────────────────────────────────────────────
-
-export interface RentalHistory {
-  venue: string;
-  eventName: string;
-  date: string;
-  status: 'completed' | 'cancelled';
-}
-
-export interface HirerDocument {
-  name: string;
-  url: string;
-}
-
-export interface Applicant {
-  // From Application
-  id: string;
-  hirerId: string;
+  hirerId: string; // email — consistent across all keys
+  hirerName?: string; // enriched when vendor loads, not persisted
   venueId: string;
   venueName: string;
   location: string;
   capacity: number;
-  eventName: string;
-  date: string;
-  eventType: string;
+  eventName: string; // always present — only created via form submission
+  eventType?: string;
   guestCount: number;
+  date: string;
+  time?: string;
   duration: number;
   status: 'pending' | 'approved' | 'rejected';
   comment?: string;
-  // ── Hirer profile (denormalized for vendor view) ──
-  name: string;
-  email: string;
-  phone: string;
-  // Computed / dummy fields - Vendor-facing fields
-  matchScore: number;
-  reputation: number;
-  credibilityScore?: number; // pulled from user profile
-  timesSelected: number;
-  rentalHistory: RentalHistory[];
-  documents: HirerDocument[];
+  rank: number;
+  matchScore?: number; // hardcoded in seed, optional for real submissions
 }
+
+// ─── HireHistory ──────────────────────────────────────────────────────────────
+// localStorage key: 'hire_history'
+
+export interface HireHistory {
+  id: string;
+  hirerId: string; // email
+  venueName: string;
+  location: string;
+  eventName: string;
+  dateOfHire: string;
+  rating: number; // 0–5, used to calculate reputation
+}
+
+// ─── StoredFile ───────────────────────────────────────────────────────────────
+// Generic type for any file stored as base64 in localStorage
+
+export interface StoredFile {
+  fileName: string;
+  base64: string; // data URL — e.g. data:image/jpeg;base64,...
+}
+
+// ─── ComplianceDocuments ──────────────────────────────────────────────────────
+// localStorage key: 'compliance_docs'
+
+export interface ComplianceDocuments {
+  hirerId: string; // email
+  isBusiness: boolean;
+  abnNumber?: string;
+  driverLicense?: StoredFile; // jpg
+  liabilityInsurance?: StoredFile; // pdf
+  businessCert?: StoredFile; // pdf, only when isBusiness = true
+}
+
+// ─── BlockedPeriod ────────────────────────────────────────────────────────────
+// localStorage key: 'blocked_periods'
 
 export interface BlockedPeriod {
   id: string;

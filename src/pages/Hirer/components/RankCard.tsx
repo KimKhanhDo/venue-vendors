@@ -1,14 +1,16 @@
-import type { Application } from '@/types';
+import type { Candidate } from '@/types';
+import { ClipboardList } from 'lucide-react';
 
 interface RankCardProps {
-  candidate: Application;
+  candidate: Candidate;
   index: number;
   total: number;
   onMoveUp: (index: number) => void;
   onMoveDown: (index: number) => void;
+  onApply: (venueId: string) => void;
 }
 
-const RankCard = ({ candidate, index, total, onMoveUp, onMoveDown }: RankCardProps) => {
+const RankCard = ({ candidate, index, total, onMoveUp, onMoveDown, onApply }: RankCardProps) => {
   return (
     <div className="flex items-center gap-3 rounded-xl border border-purple-100 bg-purple-50/80 px-3 py-2.5">
       {/* Rank badge */}
@@ -23,6 +25,15 @@ const RankCard = ({ candidate, index, total, onMoveUp, onMoveDown }: RankCardPro
           {candidate.location} · Cap. {candidate.capacity}
         </p>
       </div>
+
+      {/* Apply button */}
+      <button
+        onClick={() => onApply(candidate.venueId)}
+        className="text-secondary flex cursor-pointer items-center gap-1 rounded-lg border border-purple-200 px-2.5 py-1 text-xs font-medium transition-all hover:bg-purple-100"
+      >
+        <ClipboardList size={12} />
+        Apply
+      </button>
 
       {/* Move buttons */}
       <div className="flex gap-1">

@@ -1,6 +1,6 @@
 import { z as zod } from 'zod';
 
-// Profile Schema
+// Profile Schema — only editable fields (email & password are fixed from sign-up)
 export const profileSchema = zod.object({
   lastName: zod.string().min(1, 'Last name is required'),
   firstName: zod.string().min(1, 'First name is required'),
@@ -9,20 +9,6 @@ export const profileSchema = zod.object({
     zod.literal(''),
     zod.string().regex(/^04\d{2} \d{3} \d{3}$/, 'Format: 04XX XXX XXX'),
   ]),
-  email: zod.string().email('Email is not valid'),
-  password: zod
-    .string()
-    .optional()
-    .refine(
-      (val) =>
-        !val ||
-        (val.length >= 6 &&
-          /[A-Z]/.test(val) &&
-          /[a-z]/.test(val) &&
-          /[0-9]/.test(val) &&
-          /[^A-Za-z0-9]/.test(val)),
-      'Password must be at least 6 chars with upper, lower, number & special character',
-    ),
 });
 
 export type ProfileFormValues = zod.infer<typeof profileSchema>;

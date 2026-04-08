@@ -14,20 +14,21 @@ export const blockVenueSchema = zod
 
 export type BlockVenueFormValues = zod.infer<typeof blockVenueSchema>;
 
-export const venueSchema = zod.object({
-  name: zod.string().min(1, 'Venue name is required'),
-  description: zod.string().min(10, 'Description must be at least 10 characters'),
-  location: zod.string().min(1, 'Location is required'),
-  capacity: zod
-    .string()
-    .min(1, 'Capacity is required')
-    .refine((val) => Number(val) >= 1, 'Must be at least 1'),
-  pricePerHour: zod
-    .string()
-    .min(1, 'Price is required')
-    .refine((val) => Number(val) >= 1, 'Must be at least $1'),
-  suitability: zod.array(zod.string()).min(1, 'Select at least one suitability'),
-  photo: zod.string().optional(),
-});
+// FOR A2
+// export const venueSchema = zod.object({
+//   name: zod.string().min(1, 'Venue name is required'),
+//   description: zod.string().min(10, 'Description must be at least 10 characters'),
+//   location: zod.string().min(1, 'Location is required'),
+//   capacity: zod
+//     .string()
+//     .min(1, 'Capacity is required')
+//     .refine((val) => Number(val) >= 1, 'Must be at least 1'),
+//   pricePerHour: zod
+//     .string()
+//     .min(1, 'Price is required')
+//     .refine((val) => Number(val) >= 1, 'Must be at least $1'),
+//   suitability: zod.array(zod.string()).min(1, 'Select at least one suitability'),
+//   photo: zod.string().optional(),
+// });
 
-export type VenueFormValues = zod.infer<typeof venueSchema>;
+// export type VenueFormValues = zod.infer<typeof venueSchema>;

@@ -1,9 +1,9 @@
 import { ShieldCheck } from 'lucide-react';
+import { LuBuilding2, LuIdCard, LuShieldCheck, LuStar } from 'react-icons/lu';
 
 import type { ComplianceDocuments } from '@/types';
 import DashboardSection from '@/components/DashboardSection';
 import UploadRow from '@/components/UploadRow';
-import { LuBuilding2, LuIdCard, LuShieldCheck, LuStar } from 'react-icons/lu';
 import CredibilityBadge from '@/components/CredibilityBadge';
 
 interface ComplianceSectionProps {
@@ -25,6 +25,7 @@ const ComplianceSection = ({ docs, credibility, onUpdateDoc }: ComplianceSection
       </p>
 
       <div className="space-y-3">
+        {/* Driver's license */}
         <UploadRow
           label="Driver's License"
           hint="JPG or JPEG · max 2 MB"
@@ -33,6 +34,8 @@ const ComplianceSection = ({ docs, credibility, onUpdateDoc }: ComplianceSection
           onUpload={(f) => onUpdateDoc({ driverLicense: f })}
           onRemove={() => onUpdateDoc({ driverLicense: undefined })}
         />
+
+        {/* Public Liability Insurance */}
         <UploadRow
           label="Public Liability Insurance"
           hint="PDF · max 2 MB"
@@ -96,6 +99,7 @@ const ComplianceSection = ({ docs, credibility, onUpdateDoc }: ComplianceSection
         </div>
       </div>
 
+      {/* How credibility score is calculated info  */}
       <div className="mt-4 flex items-start gap-2 rounded-xl border border-purple-100 bg-purple-50/50 p-3">
         <ShieldCheck size={15} className="text-secondary mt-0.5 shrink-0" />
         <div className="space-y-2">

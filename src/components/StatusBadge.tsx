@@ -1,7 +1,7 @@
-import type { Applicant } from '@/types';
+import type { Application } from '@/types';
 
-const StatusBadge = ({ status }: { status: Applicant['status'] }) => {
-  const map = {
+const StatusBadge = ({ status }: { status: Application['status'] }) => {
+  const map: Record<Application['status'], string> = {
     pending: 'bg-gray-100 text-gray-500',
     approved: 'bg-purple-100 text-purple-700',
     rejected: 'bg-red-100 text-red-500',
@@ -15,4 +15,3 @@ const StatusBadge = ({ status }: { status: Applicant['status'] }) => {
 };
 
 export default StatusBadge;
-4;

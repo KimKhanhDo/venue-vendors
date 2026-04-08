@@ -23,7 +23,8 @@ const inputCls =
 const getMyVenues = (userId: string | undefined) => {
   const raw = localStorage.getItem('venues');
   const all: Venue[] = raw ? JSON.parse(raw) : [];
-  return all.filter((v) => v.vendorId === userId);
+
+  return all.filter((venue) => venue.vendorId === userId);
 };
 
 // Default form values
@@ -41,11 +42,11 @@ const BlockVenueSection = ({ blocked, onAdd, onRemove }: BlockVenueSectionProps)
     register,
     handleSubmit,
     reset,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm<BlockVenueFormValues>({
     resolver: zodResolver(blockVenueSchema),
     defaultValues: getDefaultValues(),
-    mode: 'onChange',
+    mode: 'onSubmit',
   });
 
   // Get only venues owned by this vendor
@@ -124,8 +125,7 @@ const BlockVenueSection = ({ blocked, onAdd, onRemove }: BlockVenueSectionProps)
         <div className="flex justify-start">
           <Button
             type="submit"
-            disabled={!isValid}
-            className="bg-secondary hover:bg-secondary/90 cursor-pointer rounded-2xl px-10 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-secondary hover:bg-secondary/90 cursor-pointer rounded-2xl px-10 py-2 text-white"
           >
             Block Period
           </Button>
@@ -138,8 +138,8 @@ const BlockVenueSection = ({ blocked, onAdd, onRemove }: BlockVenueSectionProps)
           <p className="text-sm text-gray-400">No blocked periods.</p>
         ) : (
           <div className="space-y-2">
-            {blocked.map((b) => (
-              <BlockCard key={b.id} block={b} onRemove={onRemove} />
+            {blocked.map((blocked) => (
+              <BlockCard key={blocked.id} block={blocked} onRemove={onRemove} />
             ))}
           </div>
         )}

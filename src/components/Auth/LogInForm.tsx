@@ -9,7 +9,6 @@ import { logInSchema, type LogInFormValues } from '@/schemas/authSchema';
 import { useAuth } from '@/contexts/AuthContext';
 
 // zod handles checking input data
-
 const LogInForm = () => {
   const { logIn } = useAuth();
   const navigate = useNavigate();

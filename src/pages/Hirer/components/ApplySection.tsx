@@ -1,62 +1,70 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
-import { useAuth } from '@/contexts/AuthContext';
-import DashboardSection from '@/components/DashboardSection';
 import { applySchema, type ApplyFormInput, type ApplyFormOutput } from '@/schemas';
 import type { Application, BlockedPeriod, Venue } from '@/types';
+import { useAuth } from '@/contexts/AuthContext';
+import DashboardSection from '@/components/DashboardSection';
 import ApplicationCard from './ApplicationCard';
 
-// ─── localStorage helpers ─────────────────────────────────────────────────────
-
-const getVenues = (): Venue[] => {
+// localStorage helpers
+const getVenues = () => {
   const raw = localStorage.getItem('venues');
   return raw ? JSON.parse(raw) : [];
 };
 
-const getBlockedVenueIds = (): Set<string> => {
+// Load all blocked periods — used for date conflict validation on submit
+const getBlockedPeriods = (): BlockedPeriod[] => {
   const raw = localStorage.getItem('blocked_periods');
-  const periods: BlockedPeriod[] = raw ? JSON.parse(raw) : [];
-  return new Set(periods.map((b) => b.venueId));
+  return raw ? JSON.parse(raw) : [];
 };
 
-const getSubmittedApplications = (email: string | undefined): Application[] => {
+// Reads all applications from localStorage and returns only those belonging to the current hirer.
+// Matches by email since hirerId uses email as the consistent identifier across all keys.
+const getMyApplications = (email: string | undefined) => {
   const raw = localStorage.getItem('applications');
   const all: Application[] = raw ? JSON.parse(raw) : [];
-  return all.filter((a) => a.hirerId === email);
+
+  return all.filter((application) => application.hirerId === email);
 };
 
-// ─── Component ────────────────────────────────────────────────────────────────
+interface Props {
+  selectedVenueId: string | null; // pre-fills the venue dropdown when set
+  onSubmitDone: (venueId: string) => void; // notifies parent to remove venue from candidates
+}
 
-const ApplySection = () => {
+const ApplySection = ({ selectedVenueId, onSubmitDone }: Props) => {
   const { user } = useAuth();
+
+  // Incremented after each submit to force useMemo to re-read from localStorage
   const [submitTick, setSubmitTick] = useState(0);
 
   const {
     register,
     handleSubmit,
     reset,
-    watch,
+    setValue,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<ApplyFormInput, unknown, ApplyFormOutput>({
     resolver: zodResolver(applySchema),
   });
 
+  // Data setup
   const venues = useMemo(getVenues, []);
-  const blockedVenueIds = useMemo(getBlockedVenueIds, []);
-  const availableVenues = useMemo(
-    () => venues.filter((v) => !blockedVenueIds.has(v.id)),
-    [venues, blockedVenueIds],
-  );
-  const submittedApplications = useMemo(
-    () => getSubmittedApplications(user?.email),
-    [submitTick, user?.email],
-  );
 
-  const watchedFields = watch(['eventName', 'guestCount', 'date', 'time', 'duration', 'venueId']);
-  const isFormFilled = watchedFields.every((v) => v !== '' && v !== undefined && v !== null);
+  // Re-reads from localStorage every time hirer submits a new application
+  const myApplications = useMemo(() => getMyApplications(user?.email), [submitTick, user?.email]);
+
+  // Pre-fills the venue dropdown when hirer clicks Apply on a RankCard
+  useEffect(() => {
+    if (selectedVenueId) {
+      setValue('venueId', selectedVenueId);
+    }
+  }, [selectedVenueId, setValue]);
 
   const inputClass = (hasError: boolean) =>
     cn(
@@ -65,13 +73,29 @@ const ApplySection = () => {
     );
 
   const onSubmit = (data: ApplyFormOutput) => {
-    const selectedVenue = venues.find((v) => v.id === data.venueId)!;
+    // Check if selected date conflicts with any blocked period for this venue
+    const blockedPeriods = getBlockedPeriods();
+    const selectedDate = new Date(data.date);
+
+    const isBlocked = blockedPeriods.some((block) => {
+      if (block.venueId !== data.venueId) return false;
+      return selectedDate >= new Date(block.from) && selectedDate <= new Date(block.to);
+    });
+
+    if (isBlocked) {
+      setError('date', { message: 'Selected date/time is unavailable.' });
+      return;
+    }
+
+    // Find the full venue object to copy its name, location, capacity into the application
+    const selectedVenue = venues.find((venue: Venue) => venue.id === data.venueId)!;
 
     const raw = localStorage.getItem('applications');
     const all: Application[] = raw ? JSON.parse(raw) : [];
 
+    // Check if hirer already has an application for this venue
     const existingIdx = all.findIndex(
-      (a) => a.hirerId === user?.email && a.venueId === data.venueId,
+      (application) => application.hirerId === user?.email && application.venueId === data.venueId,
     );
 
     const entry: Application = {
@@ -82,20 +106,33 @@ const ApplySection = () => {
       location: selectedVenue.location,
       capacity: selectedVenue.capacity,
       eventName: data.eventName,
+      eventType: 'General',
       guestCount: data.guestCount,
       date: data.date,
       time: data.time,
       duration: data.duration,
-      status: 'pending',
+      status: existingIdx >= 0 ? all[existingIdx].status : 'pending',
+      comment: existingIdx >= 0 ? all[existingIdx].comment : undefined,
       rank: existingIdx >= 0 ? all[existingIdx].rank : all.length + 1,
+      matchScore: existingIdx >= 0 ? all[existingIdx].matchScore : 80,
     };
 
-    if (existingIdx >= 0) all[existingIdx] = entry;
-    else all.push(entry);
+    if (existingIdx >= 0) {
+      all[existingIdx] = entry; // update existing
+    } else {
+      all.push(entry); // or add new
+    }
 
     localStorage.setItem('applications', JSON.stringify(all));
     reset();
-    setSubmitTick((t) => t + 1);
+
+    // trigger re-read from localStorage
+    setSubmitTick((tick) => tick + 1);
+
+    // notify parent to remove venue from candidates
+    onSubmitDone(data.venueId);
+
+    toast.success('Application submitted successfully!');
   };
 
   return (
@@ -194,9 +231,9 @@ const ApplySection = () => {
               {...register('venueId')}
             >
               <option value="">Select a venue</option>
-              {availableVenues.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {v.name} — {v.location}
+              {venues.map((venue: Venue) => (
+                <option key={venue.id} value={venue.id}>
+                  {venue.name} — {venue.location}
                 </option>
               ))}
             </select>
@@ -223,24 +260,19 @@ const ApplySection = () => {
         <div className="mt-2 md:col-span-2">
           <button
             type="submit"
-            disabled={isSubmitting || !isFormFilled}
-            className={cn(
-              'bg-secondary rounded-2xl px-6 py-2 text-sm font-medium text-white transition-all',
-              isFormFilled
-                ? 'hover:bg-secondary/90 cursor-pointer opacity-100'
-                : 'cursor-not-allowed opacity-50',
-            )}
+            disabled={isSubmitting}
+            className="bg-secondary hover:bg-secondary/90 cursor-pointer rounded-2xl px-6 py-2 text-sm font-medium text-white opacity-100 transition-all"
           >
             Submit Application
           </button>
         </div>
       </form>
 
-      {/* Submitted applications */}
-      {submittedApplications.length > 0 && (
+      {/* List of this hirer's submitted applications */}
+      {myApplications.length > 0 && (
         <div className="mt-8 space-y-3">
           <h3 className="text-primary text-sm font-medium">Your Submitted Applications</h3>
-          {submittedApplications.map((app) => (
+          {myApplications.map((app) => (
             <ApplicationCard key={app.id} app={app} />
           ))}
         </div>

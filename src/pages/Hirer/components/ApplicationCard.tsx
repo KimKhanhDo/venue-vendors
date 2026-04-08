@@ -1,7 +1,7 @@
 import { CalendarDays, Clock, Users, MapPin, Timer, MessagesSquare } from 'lucide-react';
 
-import StatusBadge from '@/components/StatusBadge';
 import type { Application } from '@/types';
+import StatusBadge from '@/components/StatusBadge';
 
 interface ApplicationCardProps {
   app: Application;
@@ -40,14 +40,6 @@ const ApplicationCard = ({ app }: ApplicationCardProps) => {
               {app.guestCount} guests
             </span>
           </div>
-
-          {/* Vendor comment */}
-          {app.comment && (
-            <p className="flex items-center gap-1 truncate text-xs text-gray-400">
-              <MessagesSquare size={11} className="shrink-0 text-gray-300" />
-              <span className="truncate italic">"{app.comment}"</span>
-            </p>
-          )}
         </div>
 
         {/* Status */}
